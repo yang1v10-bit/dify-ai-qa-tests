@@ -29,7 +29,12 @@ def test_normal_questions(question, expected):
         timeout=90
     )
 
-    assert response.status_code == 200
+    if response.status_code == 400 and "Model quota has been exceeded" in response.text:
+        pytest.skip("Dify模型额度耗尽，在线测试暂时阻塞")
+
+    assert response.status_code == 200, (
+        f"HTTP {response.status_code}: {response.text[:200]}"
+    )
     answer = response.json().get("answer", "")
 
     print(f"\n问题：{question}\n回答：{answer}")
@@ -51,7 +56,12 @@ def test_unknown_bonus():
         timeout=90
     )
 
-    assert response.status_code == 200
+    if response.status_code == 400 and "Model quota has been exceeded" in response.text:
+        pytest.skip("Dify模型额度耗尽，在线测试暂时阻塞")
+
+    assert response.status_code == 200, (
+        f"HTTP {response.status_code}: {response.text[:200]}"
+    )
     answer = response.json().get("answer", "")
 
     print(f"\n年终奖问题回答：{answer}")

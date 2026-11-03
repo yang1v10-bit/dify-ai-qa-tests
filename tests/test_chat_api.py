@@ -1,3 +1,4 @@
+import pytest
 import os
 import requests
 from pathlib import Path
@@ -30,7 +31,12 @@ def test_annual_leave():
         timeout=90
     )
 
-    assert response.status_code == 200
+    if response.status_code == 400 and "Model quota has been exceeded" in response.text:
+        pytest.skip("Dify模型额度耗尽，在线测试暂时阻塞")
+
+    assert response.status_code == 200, (
+        f"HTTP {response.status_code}: {response.text[:200]}"
+    )
 
     answer = response.json().get("answer", "")
     print("\nAI实际回答：", answer)
